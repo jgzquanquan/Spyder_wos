@@ -1,5 +1,4 @@
 
-#智立方爬取某一老师的相关的科研人员信息
 import re
 from urllib import parse
 import requests
@@ -13,9 +12,9 @@ def geturl(Num):
     driver = webdriver.Chrome()
     url = 'http://apps.webofknowledge.com/WOS_GeneralSearch_input.do?product=WOS&SID=6FAEOvziD7rmWrbUJk6&search_mode=GeneralSearch'
     driver.get(url)
-    driver.find_element_by_id("clearIcon1").click()
-    driver.find_element_by_id("value(input1)").send_keys(Num)
-    driver.find_element_by_id("WOS_GeneralSearch_input_form_sb").click()
+    driver.find_element_by_id("clearIcon1").click()#点击清除输入框内原有缓存地址
+    driver.find_element_by_id("value(input1)").send_keys(Num)#模拟在输入框输入入藏号
+    driver.find_element_by_id("WOS_GeneralSearch_input_form_sb").click()#模拟点击检索按钮
     url1 = driver.current_url
     driver.close()
     return url1
@@ -37,26 +36,18 @@ def html_parse(html,ID):
         return
     try:
         tree = etree.HTML(html)
-        re_people=tree.xpath("//div[@class='search-results-data-cite']/a/text()")
-        agency=tree.xpath(".//div[@class='alum_text']/span/text()")
-        print(re_people,agency)
+        cited = tree.xpath("//div[@class='search-results-data-cite']/a/text()")#解析页面获取被引量
+        download = tree.xpath(".//div[@class='alum_text']/span/text()")#解析页面获取下载量
+        print(cited,download)
         Str=""
-        if len(re_people)==0:
-            Str = "0" + "," + agency[0] + "," + agency[1]
+        if len(cited)==0:
+            Str = "0" + "," + download[0] + "," + download[1]
 
         else:
-            Str = re_people[0] + "," + agency[0] + "," + agency[1]
+            Str = cited[0] + "," + download[0] + "," + download[1]
         return Str
     except:
         print(ID)
-#把list里信息输出到txt文件中
-def Output(uinfo):
-    fout = open('WosOutput.txt', 'a', encoding='utf-8')
-    for data in uinfo:
-        fout.write(data+'\n')
-    fout.close()
-#解析网页获得对应科研人员的url中的ID
-#通过定位该ID可以找到该科研人员各个相关页面
 
 
 def main():
@@ -74,8 +65,6 @@ def main():
             ID = query.split(',')[0]
             Name = query.split(',')[1]
             Num = query.split(',')[2][4:-1]
-            # new_url = "https://baike.baidu.com/item/"+parse.quote(name)
-            # 根据导师姓名和学校构造需要访问的url
             url = geturl(Num)
             html = getHTMLText(url)
             data = html_parse(html,ID)
