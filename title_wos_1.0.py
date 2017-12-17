@@ -69,7 +69,6 @@ class SpiderMain(object):
             flag=0
             return cited, download, flag
         except Exception as e:
-            # 出现错误，再次try，以提高结果成功率
             if i == 0:
                 print(e)
                 print(i)
@@ -99,7 +98,7 @@ if __name__ == "__main__":
     sid = re.findall(r'SID=\w+&', s.url)[0].replace('SID=', '').replace('&', '')
 
     data = xlrd.open_workbook('2015年研究生发表论文.xlsx')
-    table = data.sheets()[2]
+    table = data.sheets()[2]#具体是取哪个表格
     nrows = table.nrows
     ncols = table.ncols
     ctype = 1
